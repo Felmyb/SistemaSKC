@@ -45,8 +45,10 @@ INSTALLED_APPS = [
     'corsheaders',  # CORS support
     
     # SmartKitchen Connect apps (modular design)
-    'apps.users',  # User management (RF-05)
-    'apps.orders',  # Order management (RF-01, RF-04)
+    'apps.usuarios',  # Gestión de usuarios (RF-05)
+    'apps.pedidos',  # Gestión de pedidos (RF-01, RF-04)
+    'apps.platos',  # Gestión de platos (RF-02)
+    'apps.inventario',  # Gestión de inventario (RF-02)
 ]
 
 MIDDLEWARE = [
@@ -92,7 +94,7 @@ DATABASES = {
 
 
 # Custom User Model (RF-05)
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'usuarios.User'
 
 
 # Password validation (RNF-03)
@@ -165,6 +167,8 @@ SWAGGER_SETTINGS = {
         }
     },
     'USE_SESSION_AUTH': False,
+    # Evita deprecations en drf_yasg renderers
+    'SWAGGER_USE_COMPAT_RENDERERS': False,
 }
 
 
@@ -180,10 +184,20 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Archivos estáticos y media (CSS, JS, Imágenes)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+
+# Directorios de desarrollo
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Directorios adicionales de estáticos (desarrollo)
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

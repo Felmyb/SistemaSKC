@@ -1,0 +1,51 @@
+# Root Git Ignore for SmartKitchen Connect
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+Backend/venv/
+
+# Django
+*.log
+local_settings.py
+*.sqlite3
+*.sqlite3-journal
+media/
+staticfiles/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Node
+node_modules/
+
+# Build/Dist
+build/
+dist/
+*.egg-info/
+.eggs/

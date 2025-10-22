@@ -75,7 +75,7 @@ urlpatterns = [
     path('api/schema/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     
     # JWT Authentication (RNF-03)
-    path('api/auth/', include('apps.users.urls')),
+    path('api/auth/', include('apps.usuarios.urls')),
     
     # Application APIs (modular routing)
     # path('api/', include('apps.orders.urls')),  # RF-01, RF-04
@@ -91,7 +91,7 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# Custom admin site configuration (RF-06)
-admin.site.site_header = "SmartKitchen Connect Admin"
-admin.site.site_title = "SmartKitchen Admin"
-admin.site.index_title = "Restaurant Management System"
+# Configuración del sitio de administración (RF-06)
+admin.site.site_header = "Administración - SmartKitchen Connect"
+admin.site.site_title = "SmartKitchen Administración"
+admin.site.index_title = "Sistema de Gestión de Restaurante"
