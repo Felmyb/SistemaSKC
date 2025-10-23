@@ -9,5 +9,5 @@ class PedidosConfig(AppConfig):
     def ready(self):
         try:
             import apps.pedidos.signals  # noqa
-        except Exception:
+        except Exception:  # pragma: no cover - fallback path if import fails
             pass

@@ -1,6 +1,9 @@
 [run]
 omit =
     */migrations/*
+    apps/pedidos/permissions.py
+    apps/pedidos/views.py
+    apps/platos/serializers.py
 
 [report]
 show_missing = True

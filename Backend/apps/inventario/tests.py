@@ -41,3 +41,9 @@ def test_inventory_stock_str_representation():
     stock = InventoryStock.objects.create(ingredient=ing, quantity=Decimal('500.00'))
     s = str(stock)
     assert 'Cheese' in s and '500.00' in s
+
+
+@pytest.mark.django_db
+def test_ingredient_str_representation():
+    ing = Ingredient.objects.create(name='Milk', unit=UnitOfMeasure.LITER)
+    assert 'Milk' in str(ing)

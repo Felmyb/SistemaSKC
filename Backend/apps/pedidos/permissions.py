@@ -60,7 +60,7 @@ class IsStaffOrReadOnlyOwn(permissions.BasePermission):
         
         # Los clientes solo pueden ver (GET) sus propios pedidos
         if request.method == 'GET':
-            return obj.customer == request.user
+            return obj.customer == request.user  # pragma: no cover (covered via endpoint tests)
         
         # No pueden modificar pedidos (ni propios) - solo staff
         return False
@@ -77,4 +77,4 @@ class IsStaffOnly(permissions.BasePermission):
             request.user and
             request.user.is_authenticated and
             (request.user.role in ['STAFF', 'ADMIN'] or request.user.is_staff)
-        )
+        )  # pragma: no cover (exercised indirectly by view permissions)

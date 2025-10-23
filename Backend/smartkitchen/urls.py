@@ -80,7 +80,7 @@ urlpatterns = [
     # Application APIs (modular routing)
     path('api/menu/', include('apps.platos.urls')),  # RF-01: Gestión del menú
     path('api/', include('apps.pedidos.urls')),  # RF-01, RF-04: Gestión de pedidos
-    # path('api/', include('apps.inventario.urls')),  # RF-02
+    path('api/', include('apps.inventario.urls')),  # RF-02: Gestión de inventario
     # path('api/', include('apps.analytics.urls')),  # RF-03
     # path('api/', include('apps.notifications.urls')),  # RF-04
     # path('api/', include('apps.reports.urls')),  # RF-06
