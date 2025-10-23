@@ -1,0 +1,102 @@
+# Azure DevOps CI/CD Pipeline para SmartKitchen Connect
+# Ejecuta tests, verifica cobertura y despliega
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    exclude:
+      - README.md
+      - Docs/**
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  PYTHON_VERSION: '3.13'
+  DJANGO_SETTINGS_MODULE: 'smartkitchen.settings'
+
+stages:
+  - stage: Test
+    displayName: 'Tests y Calidad'
+    jobs:
+      - job: Backend_Tests
+        displayName: 'Backend - Tests y Cobertura'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(PYTHON_VERSION)'
+            displayName: 'Usar Python $(PYTHON_VERSION)'
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r Backend/requirements.txt
+            displayName: 'Instalar dependencias'
+
+          - script: |
+              cd Backend
+              python manage.py check
+            displayName: 'Django system checks'
+
+          - script: |
+              cd Backend
+              pytest --verbose --cov=apps --cov-report=html --cov-report=xml --cov-fail-under=80
+            displayName: 'Ejecutar tests con cobertura'
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFiles: 'Backend/test-results.xml'
+              testRunTitle: 'Python $(PYTHON_VERSION)'
+            displayName: 'Publicar resultados de tests'
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: 'Backend/coverage.xml'
+              reportDirectory: 'Backend/htmlcov'
+            displayName: 'Publicar cobertura de código'
+
+  - stage: Build
+    displayName: 'Build'
+    dependsOn: Test
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: Build_Backend
+        displayName: 'Build Backend'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(PYTHON_VERSION)'
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r Backend/requirements.txt
+            displayName: 'Instalar dependencias'
+
+          - script: |
+              cd Backend
+              python manage.py collectstatic --noinput
+            displayName: 'Recolectar archivos estáticos'
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: 'Backend'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/backend-$(Build.BuildId).zip'
+            displayName: 'Crear artefacto'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+            displayName: 'Publicar artefactos'

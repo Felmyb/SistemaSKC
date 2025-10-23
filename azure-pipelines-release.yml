@@ -1,0 +1,95 @@
+# Pipeline de Release/Deploy para SmartKitchen Connect
+# Deploy a entornos de staging y producción
+
+trigger: none
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  PYTHON_VERSION: '3.13'
+
+stages:
+  - stage: Deploy_Staging
+    displayName: 'Deploy a Staging'
+    jobs:
+      - deployment: Deploy
+        displayName: 'Deploy Backend Staging'
+        environment: 'staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: UsePythonVersion@0
+                  inputs:
+                    versionSpec: '$(PYTHON_VERSION)'
+
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+
+                - task: ExtractFiles@1
+                  inputs:
+                    archiveFilePatterns: '$(System.ArtifactsDirectory)/drop/*.zip'
+                    destinationFolder: '$(Pipeline.Workspace)/app'
+
+                - script: |
+                    cd $(Pipeline.Workspace)/app
+                    python -m pip install --upgrade pip
+                    pip install -r requirements.txt
+                  displayName: 'Instalar dependencias'
+
+                - script: |
+                    cd $(Pipeline.Workspace)/app
+                    python manage.py migrate --noinput
+                  displayName: 'Ejecutar migraciones'
+                  env:
+                    DATABASE_URL: $(STAGING_DATABASE_URL)
+                    SECRET_KEY: $(STAGING_SECRET_KEY)
+
+  - stage: Deploy_Production
+    displayName: 'Deploy a Producción'
+    dependsOn: Deploy_Staging
+    condition: succeeded()
+    jobs:
+      - deployment: Deploy
+        displayName: 'Deploy Backend Producción'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: UsePythonVersion@0
+                  inputs:
+                    versionSpec: '$(PYTHON_VERSION)'
+
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+
+                - task: ExtractFiles@1
+                  inputs:
+                    archiveFilePatterns: '$(System.ArtifactsDirectory)/drop/*.zip'
+                    destinationFolder: '$(Pipeline.Workspace)/app'
+
+                - script: |
+                    cd $(Pipeline.Workspace)/app
+                    python -m pip install --upgrade pip
+                    pip install -r requirements.txt
+                  displayName: 'Instalar dependencias'
+
+                - script: |
+                    cd $(Pipeline.Workspace)/app
+                    python manage.py migrate --noinput
+                  displayName: 'Ejecutar migraciones'
+                  env:
+                    DATABASE_URL: $(PROD_DATABASE_URL)
+                    SECRET_KEY: $(PROD_SECRET_KEY)

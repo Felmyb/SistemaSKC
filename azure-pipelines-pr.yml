@@ -1,0 +1,45 @@
+# Pipeline simplificada para Pull Requests
+# Ejecuta solo tests esenciales
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  - job: PR_Validation
+    displayName: 'Validación de PR'
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(PYTHON_VERSION)'
+        displayName: 'Python $(PYTHON_VERSION)'
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install -r Backend/requirements.txt
+        displayName: 'Instalar dependencias'
+
+      - script: |
+          cd Backend
+          python manage.py check
+        displayName: 'Django checks'
+
+      - script: |
+          cd Backend
+          pytest --verbose --maxfail=3
+        displayName: 'Tests rápidos'
+
+      - script: |
+          cd Backend
+          python manage.py makemigrations --check --dry-run
+        displayName: 'Verificar migraciones'
