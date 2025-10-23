@@ -78,9 +78,9 @@ urlpatterns = [
     path('api/auth/', include('apps.usuarios.urls')),
     
     # Application APIs (modular routing)
-    # path('api/', include('apps.orders.urls')),  # RF-01, RF-04
-    # path('api/', include('apps.inventory.urls')),  # RF-02
-    # path('api/', include('apps.dishes.urls')),
+    path('api/menu/', include('apps.platos.urls')),  # RF-01: Gestión del menú
+    # path('api/', include('apps.pedidos.urls')),  # RF-01, RF-04
+    # path('api/', include('apps.inventario.urls')),  # RF-02
     # path('api/', include('apps.analytics.urls')),  # RF-03
     # path('api/', include('apps.notifications.urls')),  # RF-04
     # path('api/', include('apps.reports.urls')),  # RF-06

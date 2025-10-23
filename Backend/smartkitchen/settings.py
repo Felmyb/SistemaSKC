@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',  # JWT Auth (RNF-03)
     'drf_yasg',  # API Documentation (RNF-04)
     'corsheaders',  # CORS support
+    'django_filters',  # Filtros para DRF
     
     # SmartKitchen Connect apps (modular design)
     'apps.usuarios',  # Gestión de usuarios (RF-05)
