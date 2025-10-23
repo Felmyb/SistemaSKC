@@ -64,6 +64,16 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['customer', 'order_type', 'table_number', 'priority', 'estimated_time', 'notes', 'items']
 
+    def validate(self, attrs):
+        """Validar que DINE_IN tenga número de mesa."""
+        order_type = attrs.get('order_type')
+        table_number = attrs.get('table_number')
+        if order_type == 'DINE_IN' and not table_number:
+            raise serializers.ValidationError({
+                'table_number': 'Se requiere número de mesa para pedidos en el restaurante.'
+            })
+        return attrs
+
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
