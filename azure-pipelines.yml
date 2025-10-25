@@ -68,11 +68,10 @@ stages:
               testRunTitle: 'Python $(PYTHON_VERSION)'
             displayName: 'Publicar resultados de tests'
 
-          - task: PublishCodeCoverageResults@1
+          - task: PublishCodeCoverageResults@2
             inputs:
-              codeCoverageTool: 'Cobertura'
               summaryFileLocation: 'Backend/coverage.xml'
-              reportDirectory: 'Backend/htmlcov'
+              pathToSources: 'Backend/apps'
             displayName: 'Publicar cobertura de código'
 
           - task: PublishBuildArtifacts@1

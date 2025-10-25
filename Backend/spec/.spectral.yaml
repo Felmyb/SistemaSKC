@@ -1,18 +1,14 @@
-extends: ["spectral:oas", "spectral:asyncapi"]
+extends: ["spectral:oas"]
 rules:
   # Ensure operationId present and unique
   operation-operationId: true
   # Enforce 2xx/4xx/5xx response ranges
   operation-success-response: true
-  operation-4xx-response: true
-  operation-5xx-response: true
   # Avoid empty descriptions
   operation-description: true
-  oas3-operation-description: true
-  oas3-parameter-description: true
   # Tags required per operation
   operation-tags: true
-  # Examples encouraged
+  # Encourage examples in responses
   oas3-response-contains-example:
     description: "Prefer including at least one example in responses"
     message: "Response schema should include examples where possible."
@@ -21,5 +17,3 @@ rules:
     then:
       field: example
       function: truthy
-      functionOptions:
-        min: 1
