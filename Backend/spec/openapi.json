@@ -1,0 +1,3292 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "SmartKitchen Connect API",
+    "description": "\n# SmartKitchen Connect API Documentation\n\n**Standard:** IEEE 830  \n**Methodology:** Design Thinking\n\n## Overview\nRESTful API for restaurant management system providing:\n- User authentication and authorization (RF-05)\n- Order management and tracking (RF-01, RF-04)\n- Inventory control (RF-02)\n- AI-powered analytics (RF-03)\n- Reporting dashboard (RF-06)\n\n## Authentication\nThis API uses JWT (JSON Web Token) authentication.\n\n1. Obtain tokens: `POST /api/auth/token/`\n2. Use access token in header: `Authorization: Bearer <token>`\n3. Refresh token: `POST /api/auth/token/refresh/`\n\n## Requirements Traceability\nEvery endpoint is linked to a functional requirement (RF) or \nnon-functional requirement (RNF) from the IEEE 830 specification.\n\n## Design Thinking\nThis API was designed following Design Thinking principles:\n- **Empathize:** Understanding user needs\n- **Define:** Clear problem statements\n- **Ideare:** Creative solutions\n- **Prototype:** Iterative development\n- **Evaluate:** User testing and feedback\n",
+    "termsOfService": "https://smartkitchen.com/terms/",
+    "contact": {
+      "email": "contact@smartkitchen.com"
+    },
+    "license": {
+      "name": "MIT License"
+    },
+    "version": "v1"
+  },
+  "host": "localhost",
+  "schemes": [
+    "http"
+  ],
+  "basePath": "/api",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "paths": {
+    "/auth/token/": {
+      "post": {
+        "operationId": "auth_token_create",
+        "description": "Takes a set of user credentials and returns an access and refresh JSON web\ntoken pair to prove the authentication of those credentials.",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenObtainPair"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/TokenObtainPair"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/token/refresh/": {
+      "post": {
+        "operationId": "auth_token_refresh_create",
+        "description": "Takes a refresh type JSON web token and returns an access type JSON web\ntoken if the refresh token is valid.",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenRefresh"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/TokenRefresh"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/token/verify/": {
+      "post": {
+        "operationId": "auth_token_verify_create",
+        "description": "Takes a token and indicates if it is valid.  This view provides no\ninformation about a token's fitness for a particular use.",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenVerify"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/TokenVerify"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/users/": {
+      "get": {
+        "operationId": "auth_users_list",
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "post": {
+        "operationId": "auth_users_create",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/users/me/": {
+      "get": {
+        "operationId": "auth_users_me",
+        "summary": "Perfil del usuario actual",
+        "description": "Obtiene el perfil del usuario autenticado (RF-05)",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        },
+        "tags": [
+          "Perfil"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/users/me/update/": {
+      "put": {
+        "operationId": "auth_users_me_update_update",
+        "summary": "Actualizar perfil",
+        "description": "Actualiza el perfil del usuario autenticado (RF-05)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserProfile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Error de validación"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        },
+        "tags": [
+          "Perfil"
+        ]
+      },
+      "patch": {
+        "operationId": "auth_users_me_update_partial_update",
+        "summary": "Actualizar perfil",
+        "description": "Actualiza el perfil del usuario autenticado (RF-05)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserProfile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Error de validación"
+          },
+          "401": {
+            "description": "No autorizado"
+          }
+        },
+        "tags": [
+          "Perfil"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/users/register/": {
+      "post": {
+        "operationId": "auth_users_register",
+        "summary": "Registro de nuevo usuario",
+        "description": "Registro público de usuarios (RF-05)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserRegistration"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Usuario creado",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Error de validación"
+          }
+        },
+        "tags": [
+          "Autenticación"
+        ]
+      },
+      "parameters": []
+    },
+    "/auth/users/{id}/": {
+      "get": {
+        "operationId": "auth_users_read",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "put": {
+        "operationId": "auth_users_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "patch": {
+        "operationId": "auth_users_partial_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "delete": {
+        "operationId": "auth_users_delete",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Usuario.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/inventory/ingredients/": {
+      "get": {
+        "operationId": "inventory_ingredients_list",
+        "description": "",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "category",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "VEGETABLES",
+              "FRUITS",
+              "MEAT",
+              "SEAFOOD",
+              "DAIRY",
+              "GRAINS",
+              "SPICES",
+              "BEVERAGES",
+              "OTHER"
+            ]
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "unit",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "KG",
+              "G",
+              "L",
+              "ML",
+              "PC",
+              "DZ",
+              "LB",
+              "OZ"
+            ]
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "description": "is_active",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Ingredient"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "post": {
+        "operationId": "inventory_ingredients_create",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": []
+    },
+    "/inventory/ingredients/low_stock/": {
+      "get": {
+        "operationId": "inventory_ingredients_low_stock",
+        "description": "List ingredients below minimum stock threshold.",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "category",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "VEGETABLES",
+              "FRUITS",
+              "MEAT",
+              "SEAFOOD",
+              "DAIRY",
+              "GRAINS",
+              "SPICES",
+              "BEVERAGES",
+              "OTHER"
+            ]
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "description": "unit",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "KG",
+              "G",
+              "L",
+              "ML",
+              "PC",
+              "DZ",
+              "LB",
+              "OZ"
+            ]
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "description": "is_active",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Ingredient"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": []
+    },
+    "/inventory/ingredients/{id}/": {
+      "get": {
+        "operationId": "inventory_ingredients_read",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "put": {
+        "operationId": "inventory_ingredients_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "patch": {
+        "operationId": "inventory_ingredients_partial_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "delete": {
+        "operationId": "inventory_ingredients_delete",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Ingredient.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/inventory/ingredients/{id}/toggle_active/": {
+      "post": {
+        "operationId": "inventory_ingredients_toggle_active",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Ingredient.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/inventory/stocks/": {
+      "get": {
+        "operationId": "inventory_stocks_list",
+        "description": "",
+        "parameters": [
+          {
+            "name": "ingredient",
+            "in": "query",
+            "description": "ingredient",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "expiration_date",
+            "in": "query",
+            "description": "expiration_date",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/InventoryStock"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "post": {
+        "operationId": "inventory_stocks_create",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": []
+    },
+    "/inventory/stocks/{id}/": {
+      "get": {
+        "operationId": "inventory_stocks_read",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "patch": {
+        "operationId": "inventory_stocks_partial_update",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Inventory Stock.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/inventory/stocks/{id}/adjust/": {
+      "post": {
+        "operationId": "inventory_stocks_adjust",
+        "description": "",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/InventoryStock"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Inventory Stock.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/inventory/transactions/": {
+      "get": {
+        "operationId": "inventory_transactions_list",
+        "description": "",
+        "parameters": [
+          {
+            "name": "ingredient",
+            "in": "query",
+            "description": "ingredient",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "transaction_type",
+            "in": "query",
+            "description": "transaction_type",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "RESTOCK",
+              "USAGE",
+              "ADJUSTMENT",
+              "WASTE",
+              "RETURN"
+            ]
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/InventoryTransaction"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": []
+    },
+    "/inventory/transactions/{id}/": {
+      "get": {
+        "operationId": "inventory_transactions_read",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/InventoryTransaction"
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Inventory Transaction.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/menu/dishes/": {
+      "get": {
+        "operationId": "menu_dishes_list",
+        "description": "Lista todos los platos del menú con filtros opcionales",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filtrar por categoría",
+            "type": "string"
+          },
+          {
+            "name": "is_available",
+            "in": "query",
+            "description": "Filtrar por disponibilidad",
+            "type": "boolean"
+          },
+          {
+            "name": "is_vegetarian",
+            "in": "query",
+            "description": "Solo platos vegetarianos",
+            "type": "boolean"
+          },
+          {
+            "name": "is_vegan",
+            "in": "query",
+            "description": "Solo platos veganos",
+            "type": "boolean"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Buscar en nombre, descripción o alérgenos",
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Ordenar por: name, price, popularity_score, -price, etc.",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/DishList"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "post": {
+        "operationId": "menu_dishes_create",
+        "description": "Crea un nuevo plato (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DishCreateUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DishCreateUpdate"
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "parameters": []
+    },
+    "/menu/dishes/categories/": {
+      "get": {
+        "operationId": "menu_dishes_categories",
+        "description": "Obtiene las categorías disponibles con conteo de platos",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "category",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "APPETIZER",
+              "SOUP",
+              "SALAD",
+              "MAIN_COURSE",
+              "SIDE_DISH",
+              "DESSERT",
+              "BEVERAGE",
+              "SPECIAL"
+            ]
+          },
+          {
+            "name": "is_available",
+            "in": "query",
+            "description": "is_available",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "is_vegetarian",
+            "in": "query",
+            "description": "is_vegetarian",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "is_vegan",
+            "in": "query",
+            "description": "is_vegan",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/DishDetail"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "parameters": []
+    },
+    "/menu/dishes/popular/": {
+      "get": {
+        "operationId": "menu_dishes_popular",
+        "description": "Obtiene platos populares (RF-06: Recomendaciones)",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "category",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "APPETIZER",
+              "SOUP",
+              "SALAD",
+              "MAIN_COURSE",
+              "SIDE_DISH",
+              "DESSERT",
+              "BEVERAGE",
+              "SPECIAL"
+            ]
+          },
+          {
+            "name": "is_available",
+            "in": "query",
+            "description": "is_available",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "is_vegetarian",
+            "in": "query",
+            "description": "is_vegetarian",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "is_vegan",
+            "in": "query",
+            "description": "is_vegan",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número de platos a retornar (default: 10)",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/DishDetail"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "parameters": []
+    },
+    "/menu/dishes/{id}/": {
+      "get": {
+        "operationId": "menu_dishes_read",
+        "description": "Obtiene el detalle completo de un plato incluyendo su receta",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DishDetail"
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "put": {
+        "operationId": "menu_dishes_update",
+        "description": "Actualiza un plato existente (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DishCreateUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DishCreateUpdate"
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "patch": {
+        "operationId": "menu_dishes_partial_update",
+        "description": "Actualiza parcialmente un plato (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DishCreateUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DishCreateUpdate"
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "delete": {
+        "operationId": "menu_dishes_delete",
+        "description": "Elimina un plato del menú (solo staff/admin)",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Dish.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/menu/dishes/{id}/mark_available/": {
+      "post": {
+        "operationId": "menu_dishes_mark_available",
+        "description": "Marca un plato como disponible (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DishDetail"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DishDetail"
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Dish.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/menu/dishes/{id}/mark_unavailable/": {
+      "post": {
+        "operationId": "menu_dishes_mark_unavailable",
+        "description": "Marca un plato como no disponible (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DishDetail"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DishDetail"
+            }
+          }
+        },
+        "tags": [
+          "menu"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Dish.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/orders/": {
+      "get": {
+        "operationId": "orders_list",
+        "description": "Lista todos los pedidos (clientes solo ven los suyos)",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filtrar por estado",
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "Filtrar por prioridad",
+            "type": "string"
+          },
+          {
+            "name": "order_type",
+            "in": "query",
+            "description": "Filtrar por tipo de pedido",
+            "type": "string"
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "description": "customer",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Buscar en notas, mesa o cliente",
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "post": {
+        "operationId": "orders_create",
+        "description": "Crea un nuevo pedido con items",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrderCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/OrderCreate"
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": []
+    },
+    "/orders/active/": {
+      "get": {
+        "operationId": "orders_active",
+        "description": "Obtiene pedidos activos (no completados ni cancelados)",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "IN_PROGRESS",
+              "READY",
+              "DELIVERED",
+              "CANCELLED"
+            ]
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "Filtrar por prioridad",
+            "type": "string"
+          },
+          {
+            "name": "order_type",
+            "in": "query",
+            "description": "order_type",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DINE_IN",
+              "TAKEOUT",
+              "DELIVERY"
+            ]
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "description": "customer",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": []
+    },
+    "/orders/history/": {
+      "get": {
+        "operationId": "orders_history",
+        "description": "Obtiene pedidos completados del usuario",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "IN_PROGRESS",
+              "READY",
+              "DELIVERED",
+              "CANCELLED"
+            ]
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "priority",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "URGENT"
+            ]
+          },
+          {
+            "name": "order_type",
+            "in": "query",
+            "description": "order_type",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DINE_IN",
+              "TAKEOUT",
+              "DELIVERY"
+            ]
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "description": "customer",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número de pedidos a retornar",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": []
+    },
+    "/orders/stats/": {
+      "get": {
+        "operationId": "orders_stats",
+        "description": "Obtiene estadísticas de pedidos (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "IN_PROGRESS",
+              "READY",
+              "DELIVERED",
+              "CANCELLED"
+            ]
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "priority",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "URGENT"
+            ]
+          },
+          {
+            "name": "order_type",
+            "in": "query",
+            "description": "order_type",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DINE_IN",
+              "TAKEOUT",
+              "DELIVERY"
+            ]
+          },
+          {
+            "name": "customer",
+            "in": "query",
+            "description": "customer",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "A search term.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Which field to use when ordering the results.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "A page number within the paginated result set.",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "required": [
+                "count",
+                "results"
+              ],
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "next": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "previous": {
+                  "type": "string",
+                  "format": "uri",
+                  "x-nullable": true
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": []
+    },
+    "/orders/{id}/": {
+      "get": {
+        "operationId": "orders_read",
+        "description": "Obtiene el detalle completo de un pedido con items",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "put": {
+        "operationId": "orders_update",
+        "summary": "ViewSet para gestión completa de pedidos.",
+        "description": "RF-01, RF-04: Gestión y seguimiento de pedidos",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "patch": {
+        "operationId": "orders_partial_update",
+        "summary": "ViewSet para gestión completa de pedidos.",
+        "description": "RF-01, RF-04: Gestión y seguimiento de pedidos",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "delete": {
+        "operationId": "orders_delete",
+        "summary": "ViewSet para gestión completa de pedidos.",
+        "description": "RF-01, RF-04: Gestión y seguimiento de pedidos",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Order.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/orders/{id}/cancel/": {
+      "post": {
+        "operationId": "orders_cancel",
+        "description": "Cancela un pedido (solo si está en PENDING o CONFIRMED)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Order.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    },
+    "/orders/{id}/update_status/": {
+      "patch": {
+        "operationId": "orders_update_status",
+        "description": "Actualiza el estado de un pedido (solo staff/admin)",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrderStatusUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/OrderStatusUpdate"
+            }
+          }
+        },
+        "tags": [
+          "orders"
+        ]
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "A unique integer value identifying this Order.",
+          "required": true,
+          "type": "integer"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "TokenObtainPair": {
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object",
+      "properties": {
+        "username": {
+          "title": "Username",
+          "type": "string",
+          "minLength": 1
+        },
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "TokenRefresh": {
+      "required": [
+        "refresh"
+      ],
+      "type": "object",
+      "properties": {
+        "refresh": {
+          "title": "Refresh",
+          "type": "string",
+          "minLength": 1
+        },
+        "access": {
+          "title": "Access",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        }
+      }
+    },
+    "TokenVerify": {
+      "required": [
+        "token"
+      ],
+      "type": "object",
+      "properties": {
+        "token": {
+          "title": "Token",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "User": {
+      "required": [
+        "username"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "username": {
+          "title": "Username",
+          "description": "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+          "type": "string",
+          "pattern": "^[\\w.@+-]+$",
+          "maxLength": 150,
+          "minLength": 1
+        },
+        "email": {
+          "title": "Email address",
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "first_name": {
+          "title": "First name",
+          "type": "string",
+          "maxLength": 150
+        },
+        "last_name": {
+          "title": "Last name",
+          "type": "string",
+          "maxLength": 150
+        },
+        "role": {
+          "title": "Role",
+          "description": "Rol del usuario en el sistema (RF-05)",
+          "type": "string",
+          "enum": [
+            "CUSTOMER",
+            "COOK",
+            "INVENTORY_MANAGER",
+            "ADMINISTRATOR",
+            "WAITER"
+          ]
+        },
+        "role_display": {
+          "title": "Role display",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "phone_number": {
+          "title": "Phone number",
+          "description": "Teléfono de contacto para notificaciones (RF-04)",
+          "type": "string",
+          "maxLength": 20,
+          "x-nullable": true
+        },
+        "is_active": {
+          "title": "Active",
+          "description": "Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+          "type": "boolean"
+        },
+        "created_at": {
+          "title": "Created at",
+          "description": "Fecha de creación de la cuenta (trazabilidad)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updated_at": {
+          "title": "Updated at",
+          "description": "Última actualización (trazabilidad)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "UserProfile": {
+      "type": "object",
+      "properties": {
+        "first_name": {
+          "title": "First name",
+          "type": "string",
+          "maxLength": 150
+        },
+        "last_name": {
+          "title": "Last name",
+          "type": "string",
+          "maxLength": 150
+        },
+        "email": {
+          "title": "Email address",
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "phone_number": {
+          "title": "Phone number",
+          "description": "Teléfono de contacto para notificaciones (RF-04)",
+          "type": "string",
+          "maxLength": 20,
+          "x-nullable": true
+        }
+      }
+    },
+    "UserRegistration": {
+      "required": [
+        "username",
+        "password",
+        "password_confirm"
+      ],
+      "type": "object",
+      "properties": {
+        "username": {
+          "title": "Username",
+          "description": "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+          "type": "string",
+          "pattern": "^[\\w.@+-]+$",
+          "maxLength": 150,
+          "minLength": 1
+        },
+        "email": {
+          "title": "Email address",
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "minLength": 1
+        },
+        "password_confirm": {
+          "title": "Password confirm",
+          "type": "string",
+          "minLength": 1
+        },
+        "first_name": {
+          "title": "First name",
+          "type": "string",
+          "maxLength": 150
+        },
+        "last_name": {
+          "title": "Last name",
+          "type": "string",
+          "maxLength": 150
+        },
+        "phone_number": {
+          "title": "Phone number",
+          "description": "Teléfono de contacto para notificaciones (RF-04)",
+          "type": "string",
+          "maxLength": 20,
+          "x-nullable": true
+        },
+        "role": {
+          "title": "Role",
+          "description": "Rol del usuario en el sistema (RF-05)",
+          "type": "string",
+          "enum": [
+            "CUSTOMER",
+            "COOK",
+            "INVENTORY_MANAGER",
+            "ADMINISTRATOR",
+            "WAITER"
+          ],
+          "default": "CUSTOMER"
+        }
+      }
+    },
+    "Ingredient": {
+      "required": [
+        "name"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "name": {
+          "title": "Name",
+          "description": "Ingredient name",
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "category": {
+          "title": "Category",
+          "description": "Ingredient category (RF-02)",
+          "type": "string",
+          "enum": [
+            "VEGETABLES",
+            "FRUITS",
+            "MEAT",
+            "SEAFOOD",
+            "DAIRY",
+            "GRAINS",
+            "SPICES",
+            "BEVERAGES",
+            "OTHER"
+          ]
+        },
+        "unit": {
+          "title": "Unit",
+          "description": "Unit of measurement",
+          "type": "string",
+          "enum": [
+            "KG",
+            "G",
+            "L",
+            "ML",
+            "PC",
+            "DZ",
+            "LB",
+            "OZ"
+          ]
+        },
+        "cost_per_unit": {
+          "title": "Cost per unit",
+          "description": "Cost per unit (for analytics - RF-06)",
+          "type": "string",
+          "format": "decimal"
+        },
+        "supplier": {
+          "title": "Supplier",
+          "description": "Primary supplier",
+          "type": "string",
+          "maxLength": 200
+        },
+        "minimum_stock": {
+          "title": "Minimum stock",
+          "description": "Minimum stock level for alerts (RF-02)",
+          "type": "string",
+          "format": "decimal"
+        },
+        "description": {
+          "title": "Description",
+          "description": "Additional information",
+          "type": "string"
+        },
+        "is_active": {
+          "title": "Is active",
+          "description": "Is this ingredient currently in use?",
+          "type": "boolean"
+        },
+        "created_at": {
+          "title": "Created at",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updated_at": {
+          "title": "Updated at",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "current_stock": {
+          "title": "Current stock",
+          "type": "string",
+          "format": "decimal",
+          "readOnly": true
+        }
+      }
+    },
+    "InventoryStock": {
+      "required": [
+        "ingredient"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "ingredient": {
+          "title": "Ingredient",
+          "description": "Related ingredient",
+          "type": "integer"
+        },
+        "ingredient_name": {
+          "title": "Ingredient name",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "quantity": {
+          "title": "Quantity",
+          "description": "Current quantity in stock (RF-02)",
+          "type": "string",
+          "format": "decimal"
+        },
+        "last_restocked": {
+          "title": "Last restocked",
+          "description": "Last restock date",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "expiration_date": {
+          "title": "Expiration date",
+          "description": "Expiration date (if applicable)",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "title": "Updated at",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        }
+      }
+    },
+    "InventoryTransaction": {
+      "required": [
+        "ingredient",
+        "transaction_type",
+        "quantity"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "ingredient": {
+          "title": "Ingredient",
+          "description": "Related ingredient",
+          "type": "integer"
+        },
+        "ingredient_name": {
+          "title": "Ingredient name",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "transaction_type": {
+          "title": "Transaction type",
+          "description": "Type of transaction (RF-02)",
+          "type": "string",
+          "enum": [
+            "RESTOCK",
+            "USAGE",
+            "ADJUSTMENT",
+            "WASTE",
+            "RETURN"
+          ]
+        },
+        "quantity": {
+          "title": "Quantity",
+          "description": "Quantity changed (positive for add, negative for deduct)",
+          "type": "string",
+          "format": "decimal"
+        },
+        "balance_after": {
+          "title": "Balance after",
+          "description": "Stock balance after transaction",
+          "type": "string",
+          "format": "decimal",
+          "readOnly": true
+        },
+        "notes": {
+          "title": "Notes",
+          "description": "Transaction notes",
+          "type": "string"
+        },
+        "user": {
+          "title": "User",
+          "description": "User who performed transaction (RNF-04)",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "user_username": {
+          "title": "User username",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "related_order": {
+          "title": "Related order",
+          "description": "Related order (if applicable)",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "created_at": {
+          "title": "Created at",
+          "description": "Transaction timestamp (traceability)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "DishList": {
+      "required": [
+        "name",
+        "description",
+        "price"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "name": {
+          "title": "Name",
+          "description": "Dish name",
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "description": {
+          "title": "Description",
+          "description": "Dish description (RNF-06 - Accessibility)",
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "title": "Category",
+          "description": "Dish category (RF-01)",
+          "type": "string",
+          "enum": [
+            "APPETIZER",
+            "SOUP",
+            "SALAD",
+            "MAIN_COURSE",
+            "SIDE_DISH",
+            "DESSERT",
+            "BEVERAGE",
+            "SPECIAL"
+          ]
+        },
+        "category_display": {
+          "title": "Category display",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "price": {
+          "title": "Price",
+          "description": "Selling price",
+          "type": "string",
+          "format": "decimal"
+        },
+        "preparation_time": {
+          "title": "Preparation time",
+          "description": "Average preparation time in minutes (RF-01, RF-04)",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 0
+        },
+        "image": {
+          "title": "Image",
+          "description": "Dish image",
+          "type": "string",
+          "readOnly": true,
+          "x-nullable": true,
+          "format": "uri"
+        },
+        "is_available": {
+          "title": "Is available",
+          "description": "Is this dish currently available? (RF-01)",
+          "type": "boolean"
+        },
+        "is_vegetarian": {
+          "title": "Is vegetarian",
+          "description": "Is this dish vegetarian?",
+          "type": "boolean"
+        },
+        "is_vegan": {
+          "title": "Is vegan",
+          "description": "Is this dish vegan?",
+          "type": "boolean"
+        },
+        "popularity_score": {
+          "title": "Popularity score",
+          "description": "Popularity score for recommendations (RF-03, RF-06)",
+          "type": "integer",
+          "readOnly": true
+        },
+        "is_in_stock": {
+          "title": "Is in stock",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "RecipeItem": {
+      "required": [
+        "ingredient",
+        "quantity"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "ingredient": {
+          "title": "Ingredient",
+          "description": "Required ingredient (RF-02)",
+          "type": "integer"
+        },
+        "ingredient_name": {
+          "title": "Ingredient name",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "ingredient_unit": {
+          "title": "Ingredient unit",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "quantity": {
+          "title": "Quantity",
+          "description": "Quantity needed per serving (RF-02)",
+          "type": "string",
+          "format": "decimal"
+        },
+        "notes": {
+          "title": "Notes",
+          "description": "Preparation notes or special instructions",
+          "type": "string"
+        },
+        "is_available": {
+          "title": "Is available",
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "DishCreateUpdate": {
+      "required": [
+        "name",
+        "description",
+        "price"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "name": {
+          "title": "Name",
+          "description": "Dish name",
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "description": {
+          "title": "Description",
+          "description": "Dish description (RNF-06 - Accessibility)",
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "title": "Category",
+          "description": "Dish category (RF-01)",
+          "type": "string",
+          "enum": [
+            "APPETIZER",
+            "SOUP",
+            "SALAD",
+            "MAIN_COURSE",
+            "SIDE_DISH",
+            "DESSERT",
+            "BEVERAGE",
+            "SPECIAL"
+          ]
+        },
+        "price": {
+          "title": "Price",
+          "description": "Selling price",
+          "type": "string",
+          "format": "decimal"
+        },
+        "preparation_time": {
+          "title": "Preparation time",
+          "description": "Average preparation time in minutes (RF-01, RF-04)",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 0
+        },
+        "image": {
+          "title": "Image",
+          "description": "Dish image",
+          "type": "string",
+          "readOnly": true,
+          "x-nullable": true,
+          "format": "uri"
+        },
+        "is_available": {
+          "title": "Is available",
+          "description": "Is this dish currently available? (RF-01)",
+          "type": "boolean"
+        },
+        "is_vegetarian": {
+          "title": "Is vegetarian",
+          "description": "Is this dish vegetarian?",
+          "type": "boolean"
+        },
+        "is_vegan": {
+          "title": "Is vegan",
+          "description": "Is this dish vegan?",
+          "type": "boolean"
+        },
+        "allergens": {
+          "title": "Allergens",
+          "description": "Allergen information (RNF-06 - Safety)",
+          "type": "string"
+        },
+        "recipe_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RecipeItem"
+          }
+        }
+      }
+    },
+    "DishDetail": {
+      "required": [
+        "name",
+        "description",
+        "price"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "name": {
+          "title": "Name",
+          "description": "Dish name",
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "description": {
+          "title": "Description",
+          "description": "Dish description (RNF-06 - Accessibility)",
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "title": "Category",
+          "description": "Dish category (RF-01)",
+          "type": "string",
+          "enum": [
+            "APPETIZER",
+            "SOUP",
+            "SALAD",
+            "MAIN_COURSE",
+            "SIDE_DISH",
+            "DESSERT",
+            "BEVERAGE",
+            "SPECIAL"
+          ]
+        },
+        "category_display": {
+          "title": "Category display",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "price": {
+          "title": "Price",
+          "description": "Selling price",
+          "type": "string",
+          "format": "decimal"
+        },
+        "preparation_time": {
+          "title": "Preparation time",
+          "description": "Average preparation time in minutes (RF-01, RF-04)",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 0
+        },
+        "image": {
+          "title": "Image",
+          "description": "Dish image",
+          "type": "string",
+          "readOnly": true,
+          "x-nullable": true,
+          "format": "uri"
+        },
+        "is_available": {
+          "title": "Is available",
+          "description": "Is this dish currently available? (RF-01)",
+          "type": "boolean"
+        },
+        "is_vegetarian": {
+          "title": "Is vegetarian",
+          "description": "Is this dish vegetarian?",
+          "type": "boolean"
+        },
+        "is_vegan": {
+          "title": "Is vegan",
+          "description": "Is this dish vegan?",
+          "type": "boolean"
+        },
+        "allergens": {
+          "title": "Allergens",
+          "description": "Allergen information (RNF-06 - Safety)",
+          "type": "string"
+        },
+        "popularity_score": {
+          "title": "Popularity score",
+          "description": "Popularity score for recommendations (RF-03, RF-06)",
+          "type": "integer",
+          "readOnly": true
+        },
+        "recipe_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RecipeItem"
+          },
+          "readOnly": true
+        },
+        "is_in_stock": {
+          "title": "Is in stock",
+          "type": "string",
+          "readOnly": true
+        },
+        "estimated_cost": {
+          "title": "Estimated cost",
+          "type": "string",
+          "readOnly": true
+        },
+        "created_at": {
+          "title": "Created at",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updated_at": {
+          "title": "Updated at",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "OrderItem": {
+      "required": [
+        "dish"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "dish": {
+          "title": "Dish",
+          "description": "Dish being ordered",
+          "type": "integer"
+        },
+        "dish_name": {
+          "title": "Dish name",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "dish_category": {
+          "title": "Dish category",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "quantity": {
+          "title": "Quantity",
+          "description": "Quantity ordered",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 1
+        },
+        "unit_price": {
+          "title": "Unit price",
+          "description": "Price per unit at time of order",
+          "type": "string",
+          "format": "decimal",
+          "readOnly": true
+        },
+        "subtotal": {
+          "title": "Subtotal",
+          "description": "Calculated subtotal (quantity × unit_price)",
+          "type": "string",
+          "format": "decimal",
+          "readOnly": true
+        },
+        "special_instructions": {
+          "title": "Special instructions",
+          "description": "Special instructions for this item",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created at",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "Order": {
+      "required": [
+        "customer"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "ID",
+          "type": "integer",
+          "readOnly": true
+        },
+        "customer": {
+          "title": "Customer",
+          "description": "Customer who placed the order (RF-04)",
+          "type": "integer"
+        },
+        "customer_name": {
+          "title": "Customer name",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "status": {
+          "title": "Status",
+          "description": "Current order status (RF-01)",
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "CONFIRMED",
+            "IN_PROGRESS",
+            "READY",
+            "DELIVERED",
+            "CANCELLED"
+          ]
+        },
+        "status_display": {
+          "title": "Status display",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "priority": {
+          "title": "Priority",
+          "description": "Order priority for kitchen display (RF-01)",
+          "type": "string",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "URGENT"
+          ]
+        },
+        "priority_display": {
+          "title": "Priority display",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "priority_color": {
+          "title": "Priority color",
+          "type": "string",
+          "readOnly": true,
+          "minLength": 1
+        },
+        "order_type": {
+          "title": "Order type",
+          "description": "Type of order",
+          "type": "string",
+          "enum": [
+            "DINE_IN",
+            "TAKEOUT",
+            "DELIVERY"
+          ]
+        },
+        "table_number": {
+          "title": "Table number",
+          "description": "Table number for dine-in orders",
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": true
+        },
+        "total_amount": {
+          "title": "Total amount",
+          "description": "Total order amount",
+          "type": "string",
+          "format": "decimal",
+          "readOnly": true
+        },
+        "estimated_time": {
+          "title": "Estimated time",
+          "description": "Estimated preparation time in minutes (RF-04)",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 0
+        },
+        "actual_time": {
+          "title": "Actual time",
+          "description": "Actual preparation time in minutes (for analytics - RF-06)",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "x-nullable": true
+        },
+        "notes": {
+          "title": "Notes",
+          "description": "Special instructions or notes",
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          },
+          "readOnly": true
+        },
+        "created_at": {
+          "title": "Created at",
+          "description": "Order creation timestamp (traceability)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updated_at": {
+          "title": "Updated at",
+          "description": "Last update timestamp (RF-04)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "completed_at": {
+          "title": "Completed at",
+          "description": "Order completion timestamp (RF-06)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "x-nullable": true
+        }
+      }
+    },
+    "OrderCreate": {
+      "required": [
+        "customer",
+        "items"
+      ],
+      "type": "object",
+      "properties": {
+        "customer": {
+          "title": "Customer",
+          "description": "Customer who placed the order (RF-04)",
+          "type": "integer"
+        },
+        "order_type": {
+          "title": "Order type",
+          "description": "Type of order",
+          "type": "string",
+          "enum": [
+            "DINE_IN",
+            "TAKEOUT",
+            "DELIVERY"
+          ]
+        },
+        "table_number": {
+          "title": "Table number",
+          "description": "Table number for dine-in orders",
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": true
+        },
+        "priority": {
+          "title": "Priority",
+          "description": "Order priority for kitchen display (RF-01)",
+          "type": "string",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "URGENT"
+          ]
+        },
+        "estimated_time": {
+          "title": "Estimated time",
+          "description": "Estimated preparation time in minutes (RF-04)",
+          "type": "integer",
+          "maximum": 9223372036854775807,
+          "minimum": 0
+        },
+        "notes": {
+          "title": "Notes",
+          "description": "Special instructions or notes",
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        }
+      }
+    },
+    "OrderStatusUpdate": {
+      "required": [
+        "status"
+      ],
+      "type": "object",
+      "properties": {
+        "status": {
+          "title": "Status",
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "CONFIRMED",
+            "IN_PROGRESS",
+            "READY",
+            "DELIVERED",
+            "CANCELLED"
+          ]
+        },
+        "actual_time": {
+          "title": "Actual time",
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

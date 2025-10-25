@@ -63,6 +63,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         - Clientes solo ven sus propios pedidos
         - Staff/Admin ven todos los pedidos
         """
+        # Evitar ejecución durante la generación del esquema de Swagger/OpenAPI
+        if getattr(self, 'swagger_fake_view', False):  # usado por drf-yasg
+            return self.queryset.none()
+
         user = self.request.user
         
         # Staff y admin ven todos

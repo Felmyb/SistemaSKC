@@ -51,6 +51,16 @@ stages:
               pytest --verbose --cov=apps --cov-report=html --cov-report=xml --cov-fail-under=80
             displayName: 'Ejecutar tests con cobertura'
 
+          - script: |
+              cd Backend
+              python manage.py export_openapi --output spec/openapi.json
+            displayName: 'Generar OpenAPI spec (spec/openapi.json)'
+
+          - script: |
+              npm install -g @stoplight/spectral-cli
+              spectral lint Backend/spec/openapi.json -r Backend/spec/.spectral.yaml
+            displayName: 'Lint de OpenAPI con Spectral'
+
           - task: PublishTestResults@2
             condition: succeededOrFailed()
             inputs:
@@ -64,6 +74,12 @@ stages:
               summaryFileLocation: 'Backend/coverage.xml'
               reportDirectory: 'Backend/htmlcov'
             displayName: 'Publicar cobertura de código'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publicar artefacto OpenAPI'
+            inputs:
+              PathtoPublish: 'Backend/spec'
+              ArtifactName: 'openapi-spec'
 
   - stage: Build
     displayName: 'Build'
