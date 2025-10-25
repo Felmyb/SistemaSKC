@@ -36,6 +36,12 @@ stages:
               versionSpec: '$(PYTHON_VERSION)'
             displayName: 'Usar Python $(PYTHON_VERSION)'
 
+          - script: |
+              curl -LsSf https://astral.sh/uv/install.sh | sh
+              export PATH="$HOME/.local/bin:$PATH"
+              uvx --from git+https://github.com/github/spec-kit.git specify check
+            displayName: 'Spec Kit: verificación de entorno'
+
           - script: python -m pip install --upgrade pip setuptools
             displayName: 'Actualizar pip y setuptools'
           - script: pip install -r Backend/requirements.txt
@@ -79,6 +85,12 @@ stages:
             inputs:
               PathtoPublish: 'Backend/spec'
               ArtifactName: 'openapi-spec'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publicar artefacto Spec Kit'
+            inputs:
+              PathtoPublish: '.speckit'
+              ArtifactName: 'spec-kit'
 
   - stage: Build
     displayName: 'Build'
